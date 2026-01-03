@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.ProductMapper">
+
+    <!-- 在原insert标签中添加useGeneratedKeys和keyProperty属性 -->
+    <insert id="insert" parameterType="com.sky.entity.Product"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into product (
+            name, category_id, code, price, cost,
+            stock, status, image, description,
+            create_time, update_time, create_user, update_user
+        ) values (
+                     #{name}, #{categoryId}, #{code}, #{price}, #{cost},
+                     #{stock}, #{status}, #{image}, #{description},
+                     #{createTime}, #{updateTime}, #{createUser}, #{updateUser}
+                 )
+    </insert>
+
+    <!-- 在ProductMapper.xml中添加以下内容 -->
+    <select id="sumStockByCategory" resultType="com.sky.vo.CategoryStockVO">
+        select
+            c.id as categoryId,
+            c.name as categoryName,
+            sum(p.stock) as stockQuantity
+        from product p
+                 left join category c on p.category_id = c.id
+        group by c.id, c.name
+        order by stockQuantity desc
+    </select>
+
+    <!-- 查询所有商品 -->
+    <select id="listAll" resultType="com.sky.entity.Product">
+        select * from product
+        order by create_time desc
+    </select>
+
+    <!-- 更新商品信息 -->
+    <update id="update" parameterType="com.sky.entity.Product">
+        update product
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="cost != null">cost = #{cost},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="image != null">image = #{image},</if>
+            <if test="description != null">description = #{description},</if>
+            update_time = #{updateTime},
+            update_user = #{updateUser}
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 删除商品 -->
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from product where id = #{id}
+    </delete>
+
+    <!-- 分页查询商品 -->
+    <select id="pageQuery" parameterType="com.sky.dto.ProductQueryDTO" resultType="com.sky.entity.Product">
+        select * from product
+        <where>
+            <if test="name != null and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="code != null and code != ''">and code like concat('%', #{code}, '%')</if>
+            <if test="categoryId != null">and category_id = #{categoryId}</if>
+            <if test="status != null">and status = #{status}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+</mapper>

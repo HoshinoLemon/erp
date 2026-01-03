@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.SupplierMapper">
+
+    <insert id="insert" parameterType="com.sky.entity.Supplier" useGeneratedKeys="true" keyProperty="id">
+        insert into supplier (
+            name, contact, phone, address, status,
+            create_time, update_time
+        ) values (
+                     #{name}, #{contact}, #{phone}, #{address}, #{status},
+                     now(), now()
+                 )
+    </insert>
+
+</mapper>

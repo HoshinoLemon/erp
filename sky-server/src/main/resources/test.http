@@ -1,0 +1,89 @@
+### 员工登录（获取令牌）
+POST http://localhost:8080/admin/employee/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+
+
+### 新增商品（需登录令牌）
+POST http://localhost:8080/admin/product
+Content-Type: application/json
+Authorization: {{token}}  // 替换为登录返回的token
+
+{
+  "name": "测试商品A",
+  "categoryId": 1,
+  "code": "TEST-PROD-001",
+  "price": 199.99,
+  "cost": 99.99,
+  "stock": 100,
+  "status": 1,
+  "description": "测试商品描述"
+}
+
+
+### 根据ID查询商品
+GET http://localhost:8080/admin/product/2
+Content-Type: application/json
+Authorization: {{token}}
+
+### 调整商品库存
+POST http://localhost:8080/admin/product/stock/adjust
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "productId": 2,
+  "quantity": 20,
+  "remark": "测试调整库存"
+}
+
+### 分页查询库存记录
+GET http://localhost:8080/admin/stockRecord/page?page=1&pageSize=10&productId=2
+Content-Type: application/json
+Authorization: {{token}}
+
+### 新增供应商
+POST http://localhost:8080/admin/supplier
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "name": "测试供应商",
+  "contact": "张三",
+  "phone": "13800138000",
+  "address": "测试地址"
+}
+
+### 根据ID查询供应商
+GET http://localhost:8080/admin/supplier/1
+Content-Type: application/json
+Authorization: {{token}}
+
+### 创建采购订单
+POST http://localhost:8080/admin/purchase/order
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "supplierId": 1,
+  "totalAmount": 4999.50,
+  "status": 0,
+  "items": [
+    {
+      "productId": 1,
+      "productName": "测试商品A",
+      "quantity": 50,
+      "unitPrice": 99.99
+    }
+  ]
+}
+
+### 审核采购订单
+PUT http://localhost:8080/admin/purchase/order/audit/1
+Content-Type: application/json
+Authorization: {{token}}

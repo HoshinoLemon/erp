@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.SalesOrderMapper">
+
+    <insert id="insert" parameterType="com.sky.entity.SalesOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into sales_order (
+            order_number, customer_name, total_amount, status,
+            create_time, completion_time, operator_id
+        ) values (
+                     #{orderNumber}, #{customerName}, #{totalAmount}, #{status},
+                     #{createTime}, #{completionTime}, #{operatorId}
+                 )
+    </insert>
+
+    <update id="update" parameterType="com.sky.entity.SalesOrder">
+        update sales_order
+        <set>
+            <if test="orderNumber != null">order_number = #{orderNumber},</if>
+            <if test="customerName != null">customer_name = #{customerName},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="completionTime != null">completion_time = #{completionTime},</if>
+            <if test="operatorId != null">operator_id = #{operatorId},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="pageQuery" parameterType="com.sky.dto.SalesOrderQueryDTO" resultType="com.sky.vo.SalesOrderVO">
+        select
+        so.id, so.order_number, so.customer_name, so.total_amount,
+        so.status, so.create_time, so.completion_time,
+        u.name as operator_name
+        from sales_order so
+        left join employee u on so.operator_id = u.id
+        <where>
+            <if test="orderNumber != null and orderNumber != ''">
+                and so.order_number like concat('%', #{orderNumber}, '%')
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and so.customer_name like concat('%', #{customerName}, '%')
+            </if>
+            <if test="status != null">
+                and so.status = #{status}
+            </if>
+            <if test="beginTime != null">
+                and so.create_time >= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and so.create_time &lt;= #{endTime}
+            </if>
+        </where>
+        order by so.create_time desc
+    </select>
+
+    <select id="count" parameterType="com.sky.dto.SalesOrderQueryDTO" resultType="java.lang.Integer">
+        select count(*)
+        from sales_order so
+        <where>
+            <if test="orderNumber != null and orderNumber != ''">
+                and so.order_number like concat('%', #{orderNumber}, '%')
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and so.customer_name like concat('%', #{customerName}, '%')
+            </if>
+            <if test="status != null">
+                and so.status = #{status}
+            </if>
+            <if test="beginTime != null">
+                and so.create_time >= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and so.create_time &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="sumDailyAmount" resultType="com.sky.vo.DailyStatisticVO">
+        select
+            date_format(create_time, '%Y-%m-%d') as date,
+            sum(total_amount) as amount
+        from sales_order
+        where create_time between #{start} and #{end} and status = 2
+        group by date_format(create_time, '%Y-%m-%d')
+        order by date
+    </select>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.StockRecordMapper">
+
+    <!-- 插入库存记录 -->
+    <insert id="insert" parameterType="com.sky.entity.StockRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into stock_record (
+            product_id, product_name, quantity, type,
+            remark, operate_time, operator_id, total_after_alter
+        ) values (
+                     #{productId}, #{productName}, #{quantity}, #{type},
+                     #{remark}, #{operateTime}, #{operatorId},  #{totalAfterAlter}
+                 )
+    </insert>
+
+    <!-- 分页查询库存记录 -->
+    <select id="pageQuery" parameterType="com.sky.dto.StockRecordQueryDTO" resultType="com.sky.entity.StockRecord">
+        select * from stock_record
+        <where>
+            <if test="productId != null">and product_id = #{productId}</if>
+            <if test="type != null">and type = #{type}</if>
+            <if test="beginTime != null">and operate_time &gt;= #{beginTime}</if>
+            <if test="endTime != null">and operate_time &lt;= #{endTime}</if>
+        </where>
+        order by operate_time desc
+    </select>
+
+</mapper>

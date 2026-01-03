@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.PurchaseOrderMapper">
+
+    <insert id="insert" parameterType="com.sky.entity.PurchaseOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into purchase_order (
+            order_number, supplier_id, total_amount, status,
+            create_time, audit_time, auditor_id
+        ) values (
+                     #{orderNumber}, #{supplierId}, #{totalAmount}, #{status},
+                     #{createTime}, #{auditTime}, #{auditorId}
+                 )
+    </insert>
+
+    <select id="sumDailyAmount" resultType="com.sky.vo.DailyStatisticVO">
+        select
+            date_format(create_time, '%Y-%m-%d') as date,
+            sum(total_amount) as amount
+        from purchase_order
+        where create_time between #{start} and #{end} and status = 2
+        group by date_format(create_time, '%Y-%m-%d')
+        order by date
+    </select>
+
+    <!-- 分页查询采购单 -->
+    <select id="pageQuery" resultType="com.sky.vo.PurchaseOrderVO">
+        SELECT p.id, p.order_number, p.supplier_id, s.name as supplierName,
+               p.total_amount, p.status, p.create_time, p.audit_time
+        FROM purchase_order p
+                 INNER JOIN supplier s ON p.supplier_id = s.id  -- 正确的内连接方式
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.SalesOrderItemMapper">
+
+    <insert id="insert" parameterType="com.sky.entity.SalesOrderItem" useGeneratedKeys="true" keyProperty="id">
+        insert into sales_order_item (
+            order_id, product_id, product_name, quantity,
+            unit_price, total_price
+        ) values (
+                     #{orderId}, #{productId}, #{productName}, #{quantity},
+                     #{unitPrice}, #{totalPrice}
+                 )
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into sales_order_item (
+        order_id, product_id, product_name, quantity,
+        unit_price, total_price
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.orderId}, #{item.productId}, #{item.productName},
+            #{item.quantity}, #{item.unitPrice}, #{item.totalPrice}
+            )
+        </foreach>
+    </insert>
+
+    <select id="listByOrderId" parameterType="java.lang.Long" resultType="com.sky.entity.SalesOrderItem">
+        select
+            id, order_id, product_id, product_name,
+            quantity, unit_price, total_price
+        from sales_order_item
+        where order_id = #{orderId}
+    </select>
+
+    <select id="sumByProduct" resultType="com.sky.vo.ProductSalesVO">
+        select
+            soi.product_id as productId,
+            soi.product_name as productName,
+            sum(soi.quantity) as totalQuantity,
+            sum(soi.total_price) as totalAmount
+        from sales_order_item soi
+                 left join sales_order so on soi.order_id = so.id
+        where so.create_time between #{start} and #{end} and so.status = 2
+        group by soi.product_id, soi.product_name
+        order by totalAmount desc
+    </select>
+
+    <select id="pageQuery" parameterType="com.sky.dto.PurchaseOrderItemQueryDTO" resultType="com.sky.entity.PurchaseOrderItem">
+        SELECT
+        id,
+        purchase_order_id,
+        product_id,
+        product_name,
+        unit_price,
+        quantity,
+        total_price
+        FROM purchase_order_item
+        <where>
+            <!-- 按采购单ID筛选（必传，查询指定采购单的明细） -->
+            <if test="purchaseOrderId != null">
+                AND purchase_order_id = #{purchaseOrderId}
+            </if>
+            <!-- 按商品名称模糊查询（可选） -->
+            <if test="productName != null and productName != ''">
+                AND product_name LIKE CONCAT('%', #{productName}, '%')
+            </if>
+        </where>
+        ORDER BY id ASC
+    </select>
+
+</mapper>
