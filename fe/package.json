@@ -1,8 +1,9 @@
 {
   "dependencies": {
+    "vue": "^3.2.0",
+    "vue-router": "^4.6.3",
     "axios": "^1.12.2",
-    "echarts": "^6.0.0",
-    "vue-router": "^4.6.3"
+    "echarts": "^6.0.0"
   },
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -11,6 +12,7 @@
     "server": "vue-cli-service serve"
   },
   "devDependencies": {
-    "@vue/cli-service": "^5.0.9"
+    "@vue/cli-service": "^5.0.9",
+    "@vue/compiler-sfc": "^3.2.0"
   }
 }

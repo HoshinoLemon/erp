@@ -20,45 +20,45 @@
             order_id, product_id, product_name, quantity,
             unit_price, total_price
         ) values (
-                     #{orderId}, #{productId}, #{productName},
-                     #{quantity}, #{unitPrice}, #{totalPrice}
+                     #{orderId}, #{productId}, #{productName}, #{quantity},
+                     #{unitPrice}, #{totalPrice}
                  )
     </insert>
 
     <select id="listByOrderId" parameterType="java.lang.Long" resultType="com.sky.entity.PurchaseOrderItem">
         select
-            id, order_id, product_id, product_name,
-            quantity, unit_price, total_price
+            id, order_id, product_id, product_name, quantity,
+            unit_price, total_price
         from purchase_order_item
         where order_id = #{orderId}
+        order by id asc
     </select>
 
     <select id="getById" parameterType="java.lang.Long" resultType="com.sky.entity.PurchaseOrderItem">
         select
-            id, order_id, product_id, product_name,
-            quantity, unit_price, total_price
+            id, order_id, product_id, product_name, quantity,
+            unit_price, total_price
         from purchase_order_item
         where id = #{id}
     </select>
 
-    <!-- 在PurchaseOrderItemMapper.xml中添加以下内容 -->
     <select id="sumBySupplier" resultType="com.sky.vo.SupplierPurchaseVO">
-        select
-            po.supplier_id as supplierId,
-            s.name as supplierName,
-            sum(poi.total_price) as totalAmount
-        from purchase_order_item poi
-                 left join purchase_order po on poi.order_id = po.id
-                 left join supplier s on po.supplier_id = s.id
-        where po.create_time between #{start} and #{end} and po.status = 2
-        group by po.supplier_id, s.name
-        order by totalAmount desc
+        SELECT
+        s.id AS supplierId,
+        s.name AS supplierName,
+        SUM(poi.total_price) AS totalAmount
+        FROM purchase_order_item poi
+        JOIN purchase_order po ON poi.order_id = po.id
+        JOIN supplier s ON po.supplier_id = s.id
+        WHERE po.create_time BETWEEN #{start} AND #{end}
+        GROUP BY s.id, s.name
+        ORDER BY totalAmount DESC
     </select>
 
     <select id="pageQuery" parameterType="com.sky.dto.PurchaseOrderItemQueryDTO" resultType="com.sky.entity.PurchaseOrderItem">
         SELECT
         id,
-        purchase_order_id,
+        order_id AS orderId,
         product_id,
         product_name,
         unit_price,
@@ -68,7 +68,7 @@
         <where>
             <!-- 按采购单ID筛选（必传，查询指定采购单的明细） -->
             <if test="purchaseOrderId != null">
-                AND purchase_order_id = #{purchaseOrderId}
+                AND order_id = #{purchaseOrderId}
             </if>
             <!-- 按商品名称模糊查询（可选） -->
             <if test="productName != null and productName != ''">
